@@ -45,3 +45,27 @@ resource "aws_route_table_association" "main_association" {
   subnet_id      = aws_subnet.main_public_subnet.id
   route_table_id = aws_route_table.main_route_table.id
 }
+
+resource "aws_security_group" "main_security_group" {
+  name        = "dev_sg"
+  description = "dev security group"
+  vpc_id      = aws_vpc.main_vpc.id
+
+  tags = {
+    Name = "dev_sg"
+  }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv4" {
+  security_group_id = aws_security_group.main_security_group.id
+  cidr_ipv4         = aws_vpc.main_vpc.cidr_block
+  from_port         = 0 # setting all port equal to 0 means that we accept all the ports
+  to_port           = 0
+  ip_protocol       = "-1" # semantically equivalent to all ports
+}
+
+resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
+  security_group_id = aws_security_group.allow_tls.id
+  cidr_ipv4         = "0.0.0.0/0" # this way we are llowing whatever goes into the subnet to acces the open internet
+  ip_protocol       = "-1" # semantically equivalent to all ports
+}
