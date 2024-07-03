@@ -15,7 +15,7 @@ resource "aws_subnet" "main_public_subnet" {
   availability_zone       = "eu-central-1a"
 
   tags = {
-    Name = "dev-public"
+    Name = "dev-public-sn"
   }
 }
 
@@ -25,4 +25,18 @@ resource "aws_internet_gateway" "main_internet_gateway" {
   tags = {
     Name = "dev-igw"
   }
+}
+
+resource "aws_route_table" "main_route_table" {
+  vpc_id = aws_vpc.main_vpc.id
+
+  tags = {
+    Name = "dev-public-rt"
+  }
+}
+
+resource "aws_route" "default_route" {
+  route_table_id            = aws_route_table.main_route_table.id
+  destination_cidr_block    = "0.0.0.0/0"
+  gateway_id = aws_internet_gateway.main_internet_gateway.id
 }
