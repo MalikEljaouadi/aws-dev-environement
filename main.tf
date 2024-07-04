@@ -67,10 +67,28 @@ resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv4" {
 resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
   security_group_id = aws_security_group.main_security_group.id
   cidr_ipv4         = "0.0.0.0/0" # this way we are llowing whatever goes into the subnet to acces the open internet
-  ip_protocol       = "-1" # semantically equivalent to all ports
+  ip_protocol       = "-1"        # semantically equivalent to all ports
 }
 
 resource "aws_key_pair" "ssh_auth" {
   key_name   = "ssh-auth-key"
   public_key = file("~/.ssh/aws_env_dev.pub")
+}
+
+resource "aws_instance" "computing_instance" {
+  ami           = data.aws_ami.server_ami.id
+  instance_type = "t2.micro"
+
+  tags = {
+    Name = "dev_node"
+  }
+
+  key_name                   = aws_key_pair.ssh_auth.id
+  aws_vpc_security_group_ids = [aws_security_group.main_security_group.id]
+  subnet_id                  = aws_subnet.main_public_subnet.id
+
+  # Resize the default size of the drive in the instance
+  root_block_device {
+    volume_size = 10
+  }
 }
