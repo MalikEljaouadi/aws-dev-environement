@@ -65,7 +65,12 @@ resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv4" {
 }
 
 resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
-  security_group_id = aws_security_group.allow_tls.id
+  security_group_id = aws_security_group.main_security_group.id
   cidr_ipv4         = "0.0.0.0/0" # this way we are llowing whatever goes into the subnet to acces the open internet
   ip_protocol       = "-1" # semantically equivalent to all ports
+}
+
+resource "aws_key_pair" "ssh_auth" {
+  key_name   = "ssh-auth-key"
+  public_key = file("~/.ssh/aws_env_dev.pub")
 }
