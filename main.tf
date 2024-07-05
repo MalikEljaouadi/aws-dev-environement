@@ -76,12 +76,12 @@ resource "aws_key_pair" "ssh_auth" {
 }
 
 resource "aws_instance" "computing_instance" {
-  ami                        = data.aws_ami.server_ami.id
-  instance_type              = "t2.micro"
-  key_name                   = aws_key_pair.ssh_auth.id
+  ami                    = data.aws_ami.server_ami.id
+  instance_type          = "t2.micro"
+  key_name               = aws_key_pair.ssh_auth.id
   vpc_security_group_ids = [aws_security_group.main_security_group.id]
-  subnet_id                  = aws_subnet.main_public_subnet.id
-  user_data = file("userdata.tpl")
+  subnet_id              = aws_subnet.main_public_subnet.id
+  user_data              = file("userdata.tpl")
 
   root_block_device { # Resize the default size of the drive in the instance
     volume_size = 10
@@ -90,12 +90,12 @@ resource "aws_instance" "computing_instance" {
     Name = "dev_node"
   }
 
-  provisioner "local-exec"{
-    command = templatefile("${host_os}-ssh-config.tpl", {
-      hostname = self.public_ip,
-      user = "ubuntu",
+  provisioner "local-exec" {
+    command = templatefile("${var.host_os}-ssh-config.tpl", {
+      hostname     = self.public_ip,
+      user         = "ubuntu",
       identityfile = "~/.ssh/aws_env_dev"
     })
-    interpreter = var.host_os == "windows" ? ["Powershell","-Command"]:["bash", "-c"]
+    interpreter = var.host_os == "windows" ? ["Powershell", "-Command"] : ["bash", "-c"]
   }
 }
