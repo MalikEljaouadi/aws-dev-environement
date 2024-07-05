@@ -89,4 +89,13 @@ resource "aws_instance" "computing_instance" {
   tags = {
     Name = "dev_node"
   }
+
+  provisioner "local-exec"{
+    command = templatefile("linux-ssh-config.tpl", {
+      hostname = self.public_ip,
+      user = "ubuntu",
+      identityfile = "~/.ssh/aws_env_dev"
+    })
+    interpreter = ["bash", "-c"]
+  }
 }
