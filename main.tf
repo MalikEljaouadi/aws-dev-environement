@@ -91,11 +91,11 @@ resource "aws_instance" "computing_instance" {
   }
 
   provisioner "local-exec"{
-    command = templatefile("linux-ssh-config.tpl", {
+    command = templatefile("${host_os}-ssh-config.tpl", {
       hostname = self.public_ip,
       user = "ubuntu",
       identityfile = "~/.ssh/aws_env_dev"
     })
-    interpreter = ["bash", "-c"]
+    interpreter = var.host_os == "windows" ? ["Powershell","-Command"]:["bash", "-c"]
   }
 }
